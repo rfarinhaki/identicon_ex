@@ -2,18 +2,32 @@ defmodule Identicon do
   @moduledoc """
   Identicon image generator.
   """
-def main(input) do
-  input
-  |>hash_input
-  |>pick_color
-  |>build_grid
-  |>filter_odd_squares
-  |>build_pixel_map
-  |>draw_image
-  |>save_image(input)
+def main(args) do
+  {opts,_,_} = OptionParser.parse(args, strict: [help: :boolean, file: :string, input: :string], aliases: [h: :help, f: :file, i: :input])
+
+  cond do
+    opts[:help] -> show_help()
+    true ->
+      opts[:input]
+      |>hash_input
+      |>pick_color
+      |>build_grid
+      |>filter_odd_squares
+      |>build_pixel_map
+      |>draw_image
+      |>save_image(opts[:file])
+  end
 end
 
+def show_help() do
+  IO.puts("Help:")
+  IO.puts("identicon -i <input_string> -f <file_to_save.png>")
+end
+
+
 def save_image(image, filename) do
+  filename = String.split(filename, ".")|>List.first
+  IO.inspect(filename)
   File.write("#{filename}.png", image )
 end
 
