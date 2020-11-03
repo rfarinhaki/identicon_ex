@@ -5,8 +5,14 @@ defmodule Identicon do
 def main(args) do
   {opts,_,_} = OptionParser.parse(args, strict: [help: :boolean, file: :string, input: :string], aliases: [h: :help, f: :file, i: :input])
 
+  file=case opts[:file] do
+    nil -> opts[:input]
+    _ -> opts[:file]
+  end
+
   cond do
     opts[:help] -> show_help()
+    opts[:input]==nil -> IO.puts(:stderr, "Input can't be empty")
     true ->
       opts[:input]
       |>hash_input
@@ -15,7 +21,7 @@ def main(args) do
       |>filter_odd_squares
       |>build_pixel_map
       |>draw_image
-      |>save_image(opts[:file])
+      |>save_image(file)
   end
 end
 
@@ -24,10 +30,8 @@ def show_help() do
   IO.puts("identicon -i <input_string> -f <file_to_save.png>")
 end
 
-
 def save_image(image, filename) do
   filename = String.split(filename, ".")|>List.first
-  IO.inspect(filename)
   File.write("#{filename}.png", image )
 end
 
